@@ -9,3 +9,4 @@
 **create temporary table name_table**: Crea una tabla temporal la cual se pierde al cerrar la sesión.<br>
 **create table table_name(attr_name type, ...)**<br>
 **\d+ table_name**: Muestra los atributos de la tabla.
+<hr>
