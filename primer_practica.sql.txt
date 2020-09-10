@@ -1,0 +1,70 @@
+DROP TABLE IF EXISTS estudiante;
+DROP TABLE IF EXISTS prof_pe;
+DROP TABLE IF EXISTS profesor;
+DROP TABLE IF EXISTS programa_educativo;
+DROP TABLE IF EXISTS departamento;
+
+CREATE TABLE departamento(
+	depto_nombre VARCHAR(20),	
+	CONSTRAINT pk_depto PRIMARY KEY(depto_nombre)
+);
+
+CREATE TABLE programa_educativo(
+	pe_nombre VARCHAR(40),
+	depto_nombre VARCHAR(20),
+	CONSTRAINT pk_pe PRIMARY KEY(pe_nombre),
+	CONSTRAINT fk_pe_depto FOREIGN KEY (depto_nombre) REFERENCES departamento(depto_nombre)
+);
+
+CREATE TABLE profesor(
+	nue CHAR(6),
+	nombre VARCHAR(30) NOT NULL,
+	apaterno VARCHAR(30) NOT NULL,
+	amaterno VARCHAR(30),
+	grado VARCHAR(5),
+	tipo_profesor CHAR(3) NOT NULL,
+	email_institucional VARCHAR(25),
+	ncubiculo CHAR(3),
+	ext CHAR(3),
+	depto_nombre VARCHAR(20),
+	CONSTRAINT pk_prof PRIMARY KEY (nue),
+	CONSTRAINT chk_prof_email CHECK (email_institucional LIKE '___%@ugto.mx'),
+	CONSTRAINT fk_prof_depto FOREIGN KEY (depto_nombre) REFERENCES departamento(depto_nombre)
+);
+
+CREATE TABLE prof_pe(
+	pe_nombre VARCHAR(40),
+	nue CHAR(6),
+	CONSTRAINT pk_prof_pe PRIMARY KEY(pe_nombre,nue),
+	CONSTRAINT fk_pp_pe FOREIGN KEY (pe_nombre) REFERENCES programa_educativo(pe_nombre),
+	CONSTRAINT fk_pp_prof FOREIGN KEY (nue) REFERENCES profesor(nue)
+);
+
+CREATE TABLE estudiante(
+	nua CHAR(6),
+	nombre VARCHAR(30) NOT NULL,
+	apaterno VARCHAR(30) NOT NULL,
+	amaterno VARCHAR(30),	
+	email_institucional VARCHAR(25),
+	pe_nombre VARCHAR(40),
+	nue CHAR(6),
+	CONSTRAINT pk_est PRIMARY KEY(nua),
+	CONSTRAINT fk_est_pe FOREIGN KEY (pe_nombre) REFERENCES programa_educativo(pe_nombre),
+	CONSTRAINT fk_est_prof FOREIGN KEY (nue) REFERENCES profesor(nue),
+	CONSTRAINT chk_est_email CHECK (email_institucional LIKE '___%@ugto.mx')
+);
+
+ALTER TABLE departamento ADD COLUMN nue CHAR(6);
+ALTER TABLE departamento ADD CONSTRAINT fk_depto_prof FOREIGN KEY (nue) REFERENCES profesor(nue);
+ALTER TABLE estudiante ADD COLUMN nua_tutor CHAR(6);
+ALTER TABLE estudiante ADD CONSTRAINT fk_est_est FOREIGN KEY (nua_tutor) REFERENCES estudiante(nua);
+
+
+
+
+
+
+
+
+
+
