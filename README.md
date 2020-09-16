@@ -1,5 +1,7 @@
 # Comandos Importantes
 
+**psql -U postgres**<br>
+**psql -U postgres -d chinook < Chinook.sql**: Poblar base de datos.<br>
 **create dabase name**<br>
 **drop database name**<br>
 **\l**: Lista de las bases de datos.<br>
