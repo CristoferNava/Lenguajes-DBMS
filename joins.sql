@@ -100,3 +100,17 @@ select distinct "Artist"."Name", "Invoice"."InvoiceDate"
 from "Artist" natural join "Album" join "Track" using("AlbumId") join "InvoiceLine" using("TrackId")
 join "Invoice" using("InvoiceId")
 where "Invoice"."InvoiceDate" not between '2011-01-01' and '2011-12-31'
+
+-- construcción de tablas
+select "Title"
+from "Album" natural join (select "ArtistId"
+                           from "Artist"
+                           where "Name" = 'Nirvana' or "Name" = 'Deep Purple') as nirvana;
+                           
+-- subconsultas no correlacionadas
+-- la subconsulta sólo puede regresar un sólo atributo
+select "Title"
+from "Album"
+where "ArtistId" in (select "ArtistId"
+                     from "Artist"
+                     where "Name" = 'Nirvana' or "Name" = 'Deep Purple')
