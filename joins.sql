@@ -114,3 +114,80 @@ from "Album"
 where "ArtistId" in (select "ArtistId"
                      from "Artist"
                      where "Name" = 'Nirvana' or "Name" = 'Deep Purple')
+
+-- listar el identificador de factura en los cuales se hayan comprado las canciones
+-- con identificador 635 y 662
+select distinct "InvoiceId"
+from "InvoiceLine" as RI join "InvoiceLine" as RD using("InvoiceId")
+where RI."TrackId" = 635 and RD."TrackId" = 662;
+
+select distinct "InvoiceId"
+from "InvoiceLine"
+where "TrackId" = 635 and "InvoiceId" in (select distinct "InvoiceId"
+                                          from "InvoiceLine"
+                                          where "TrackId" = 662)
+                                          
+-- operaciones de conjuntos
+
+-- recuperar los identificadores de factura de aquellas en las que se haya comprado
+-- la canción con identificador 10 o 20
+select distinct "InvoiceId"
+from "InvoiceLine"
+where "TrackId" in (10, 20)
+
+select distinct "InvoiceId"
+from "InvoiceLine"
+where "TrackId" = 10
+union
+ select distinct "InvoiceId"
+from "InvoiceLine"
+where "TrackId" = 20 
+
+-- listar el nombre y el apellido de todos los clientes y los empleados
+select "FirstName", "LastName", 'Customer' as Tipo
+from "Customer"  
+union 
+select "FirstName", "LastName", 'Employee' as Tipo
+from "Employee"                                        
+                        
+-- regresando con repeticiones                       
+select "FirstName", "LastName", 'Customer' as Tipo
+from "Customer"  
+union all
+select "FirstName", "LastName", 'Employee' as Tipo
+from "Employee"       
+
+-- diferencia de conjuntos (except)
+A = {a, b, c}
+B = {a}
+A - B = {b, c}
+-- Listar los identificadores de artistas que no tienen albumes registrados
+select "ArtistId"
+from "Artist"
+except
+select distinct "ArtistId"
+from "Album" 
+
+-- listar los nombres de artistas que no tienen albumes registrados
+select "Name"
+from "Artist"
+where "ArtistId" not in (select distinct "ArtistId"
+                       from "Album")    
+                       
+-- usando subconsultasc correlacionadas
+select "Name"
+from "Artist" as a
+where not exists (select 1 -- puede calcular 
+                  from "Album"
+                  where "ArtistId" = a."ArtistId") 
+                  
+-- Intersección (intersect)
+-- Listar el identificador de factura en los cuales se hayan comprado las canciones
+-- con identificador 635 y 662
+select "InvoiceId"
+from "InvoiceLine"
+where "TrackId" = 635  
+intersect
+select "InvoiceId"
+from "InvoiceLine"
+where "TrackId" = 662 
