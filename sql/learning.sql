@@ -1,3 +1,18 @@
+-- Listar los clientes que son del país Brazil y no tienen compañía registrada.
+select * from "Customer" where "Country" = 'Brazil' and "Company" is null;
+
+-- Listar los títulos de canciones que no contienen la palabra rock.
+select * from "Track" where not ("Name"  like '% Rock %' or "Name" like '% rock %');
+
+-- Listar los clientes que son del país Brazil o Argentina.
+select * from "Customer" where "Country" in ('Brazil', 'Argentina');
+
+-- Listar todas las facturas con fecha de factura del año 2009 excepto las del mes de mayo.
+select * from "Invoice" where ("InvoiceDate" between '2009-01-01' and '2009-12-31') and not ("InvoiceDate" between '2009-05-01' and '2009-05-31');
+
+-- Listar todos los empleados que no le reportan a ningún otro empleado.
+select * from "Employee" where "ReportsTo" is null;
+
 -- listar la información de los artistas y sus albumes
 select *
 from "Artist", "Album"
@@ -26,7 +41,7 @@ select Emp."FirstName", Emp."LastName", Jef."FirstName", Jef."LastName"
 from "Employee" as Emp
 inner join "Employee" as Jef on (Emp."ReportsTo" = Jef."EmployeeId");
 
--- listar los artitas de las canciones que ha comprado Alexandre Rocha
+-- listar los artistas de las canciones que ha comprado Alexandre Rocha
 select distinct "FirstName", "LastName"
 from "Artist" natural join "Album" join "Track" using("AlbumId") join "InvoiceLine" using("TrackId") natural join "Invoice" natural join "Customer"
 where "Artist"."Name" in ('Nirvana', 'Deep Purple');
@@ -139,7 +154,7 @@ select distinct "InvoiceId"
 from "InvoiceLine"
 where "TrackId" = 10
 union
- select distinct "InvoiceId"
+select distinct "InvoiceId"
 from "InvoiceLine"
 where "TrackId" = 20 
 
@@ -174,7 +189,7 @@ from "Artist"
 where "ArtistId" not in (select distinct "ArtistId"
                        from "Album")    
                        
--- usando subconsultasc correlacionadas
+-- usando subconsultas correlacionadas
 select "Name"
 from "Artist" as a
 where not exists (select 1 -- puede calcular 
@@ -191,3 +206,90 @@ intersect
 select "InvoiceId"
 from "InvoiceLine"
 where "TrackId" = 662 
+
+-- Operaciones aritméticas
+-- Mostrar los subtotales de todos los detalles de factura
+select "UnitPrice" * "Quantity" as subtotal
+from "InvoiceLine"                                              
+                 
+-- Mostrar el nombre de la canción y su duración en milisegundos y segundos
+select "Name", "Milliseconds", "Milliseconds" / 1000.0 as seconds
+from "Track" 
+
+-- Cambiar a valor negativo el precio unitario de las canciones y mostrar el nombre
+select "Name", -"UnitPrice"
+from "Track"    
+
+-- Mostrar el nombre de las canciones y su precio unitario con incremento del 15%
+select "Name", "UnitPrice" + "UnitPrice" * 0.15
+from "Track"  
+
+-- Mostrar el nombre de las canciones y su precio unitario con descuento del 15%
+select "Name", "UnitPrice" - "UnitPrice" * 0.15
+from "Track"                                                              
+                                          
+-- Manipulación de cadenas
+-- Listar los nombres y apellidos de los empleados
+select "FirstName" || ' ' || "LastName" as FullName
+from "Employee"                                          
+ 
+-- Listar los titulos de albumes (en mayúsculas) del artista con nombre 'nirvana'
+select upper("Title")
+from "Album"
+where "ArtistId" = (select "ArtistId"
+                  from "Artist"
+                  where lower("Name") = lower('NIRVANA'))   
+                  
+select "Title"
+from "Album"
+where "ArtistId" = (select "ArtistId"
+                  from "Artist"
+                  where "Name" = trim(' Nirvana '))  
+                  
+select "Title"
+from "Album"
+where "ArtistId" = (select "ArtistId"
+                  from "Artist"
+                  where "Name" = trim(both ' ' from ' Nirvana '))   
+                  
+-- Listar la inicial del primer nombre seguida de un punto y el apellido de los clientes
+select substring("FirstName" from 1 for 1) || '. ' || "LastName" as fullname
+from "Customer" 
+
+-- Overlaps, si hay fechas con empalme regresa true, de lo contrario false
+select ('01-Jan-2020'::DATE, '31-Dec-2020'::DATE) overlaps ('31-Dec-2020'::DATE, '31-Jan-2021'::DATE)
+
+-- listar todas las facturas del año 2009
+select *
+from "Invoice"
+where "InvoiceDate" between '2009-01-01' and '2009-12-31'
+
+-- haciendo uso de track
+select *
+from "Invoice"
+where extract(year from "InvoiceDate") = 2009
+
+-- mostrar un listado aplicado a las canciones con el siguiente descuento de acuerdo
+-- a su género siendo 15% para rock, 10% para metal, y 5% para el resto
+select "Track"."Name", "Genre"."Name", "UnitPrice", (case
+                                                        when "Genre"."Name" = 'Rock' then "UnitPrice" * 0.85
+                                                        when "Genre"."Name" = 'Rock' then "UnitPrice" * 0.85
+                                                        else "UnitPrice" * 0.95
+                                                      end) as disc
+from "Track" join "Genre" using ("GenreId")
+
+-- funciones de agregación
+-- mostrar la cantidad de canciones registradas
+select count(*) -- cuenta todo lo no null
+from "Track"
+
+select count("Composer")
+from "Track"
+
+-- listar el total vendido en todas las facturas
+select sum("Total")
+from "Invoice"
+
+-- Listar el promedio de totales de las facturas
+select avg("Total")
+from "Invoice"
