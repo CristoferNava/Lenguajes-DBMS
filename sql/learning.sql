@@ -293,3 +293,38 @@ from "Invoice"
 -- Listar el promedio de totales de las facturas
 select avg("Total")
 from "Invoice"
+
+-- Grupos
+-- Listar nombre de artista y cantidad de albumes que tiene registrados
+-- siempre y cuando tenga más de 5 albums
+select "Name", count(*)
+from "Album" natural join "Artist"
+group by "ArtistId", "Name" -- evita que haya artistas repetidos
+having count(*) > 5
+order by "Name";
+
+-- Número de albums que tiene cada artista
+select "Name", count(*)
+from "Album" natural join "Artist"
+group by "ArtistId", "Name" 
+order by "Name"
+
+-- Número de canciones que tien cada album
+select "Title", count(*)
+from "Album" natural join "Track"
+group by "AlbumId" 
+order by "Title"
+
+-- Listar el nombre de artista y cantidad de albums registrados, y cantidad de 
+-- canciones registradas    
+SELECT "Artist"."ArtistId","Name", CASE WHEN T_album IS NULL THEN 0 ELSE T_album END AS ta, CASE WHEN T_track IS NULL THEN 0 ELSE T_track END AS tt
+FROM "Artist" LEFT OUTER JOIN
+(SELECT "ArtistId", T_album, T_track
+FROM (SELECT "ArtistId", COUNT(*) AS T_album
+FROM "Album"
+GROUP BY "ArtistId") AS alb
+NATURAL JOIN
+(SELECT "ArtistId", COUNT(*) AS T_track
+FROM "Track" NATURAL JOIN "Album" JOIN "Artist" USING ("ArtistId")
+GROUP BY "ArtistId") AS tra) AS summary ON "Artist"."ArtistId" = summary."ArtistId"
+ORDER BY "ArtistId";
