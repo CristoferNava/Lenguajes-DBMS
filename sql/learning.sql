@@ -328,3 +328,13 @@ NATURAL JOIN
 FROM "Track" NATURAL JOIN "Album" JOIN "Artist" USING ("ArtistId")
 GROUP BY "ArtistId") AS tra) AS summary ON "Artist"."ArtistId" = summary."ArtistId"
 ORDER BY "ArtistId";
+
+-- Listar el identificador de factura, el total y la proporción de total al acumulado de ventas
+SELECT "InvoiceId", "Total", "Total" / (SELECT SUM("Total") AS tt FROM "Invoice") AS paporte
+FROM "Invoice"
+ORDER BY "InvoiceId";
+
+-- Listar el identificador de factura, identificador de canción, precio unitario, total acumulado, y total de la factura
+SELECT "InvoiceId", "TrackId", SUM("UnitPrice" * "Quantity") OVER (PARTITION BY "InvoiceId" ORDER BY "InvoiceId", "TrackId") AS Acu,
+                               SUM("UnitPrice" * "Quantity") OVER (PARTITION BY "InvoiceId") AS Total
+from "InvoiceLine";
